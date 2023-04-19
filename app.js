@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 app.use(routerUsers);
 app.use(routerCard);
 app.use('*', (req, res) => {
-  res.status(404).send({});
+  res.status(404).send({ message: 'Страница не найдена' });
 });
 
 // принимаем сообщения с PORT
