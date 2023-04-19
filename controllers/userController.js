@@ -12,24 +12,20 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  console.log('Пришел запрос на get user by Id');
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        // throw new Error('CastError');
         res.status(404).send({ message: 'Пользователь не найден' });// не существ. id
         return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
-      console.log(err.name);
-      // if (err.name === 'ValidationError') {
-      //   res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
-      //   return;
-      // }
-
-      res.status(500).send({ message: err.message });// не коррк id
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
+        return;
+      }
+      res.status(500).send({ message: err.message });// не корректный id
     });
 };
 

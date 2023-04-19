@@ -39,6 +39,10 @@ const deleteCard = (req, res) => {
       res.send({ message: 'Пост удален' });
     })
     .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
+        return;
+      }
       res.status(500).send({ message: err.message });
     });
 };
@@ -58,11 +62,12 @@ const likeCard = (req, res) => {
       res.send({ data: card });
     })
     .catch((err) => {
-      // if (err.name === 'ValidationError') {
-      //   res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
-      //   return;
-      // }
-      res.status(500).send({ message: err.message });// не коррк id
+      console.log(err.name);
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
+        return;
+      }
+      res.status(500).send({ message: err.message });
     });
 };
 
@@ -81,7 +86,7 @@ const disLikeCard = (req, res) => {
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
         return;
       }
