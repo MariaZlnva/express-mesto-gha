@@ -52,17 +52,17 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
-      } else {
-        res.send({ data: card });
+        res.status(404).send({ message: 'Передан несуществующий _id карточки.' });// не существ. id
+        return;
       }
+      res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
-      } else {
-        res.status(500).send({ message: err.message });
-      }
+      // if (err.name === 'ValidationError') {
+      //   res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
+      //   return;
+      // }
+      res.status(500).send({ message: err.message });// не коррк id
     });
 };
 
