@@ -2,6 +2,9 @@
 # Проект Mesto фронтенд + бэкенд
 
 
+Ссылка на репозиторий:
+https://github.com/MariaZlnva/express-mesto-gha
+
 ## Директории
 
 `/routes` — папка с файлами роутера  
@@ -14,3 +17,4 @@
 
 `npm run start` — запускает сервер   
 `npm run dev` — запускает сервер с hot-reload
+
