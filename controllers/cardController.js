@@ -1,13 +1,19 @@
 const Card = require('../models/cardSchema');
 
+const {
+  ERROR_CODE_BAD_REG,
+  ERROR_CODE_NOT_FOUND,
+  ERROR_CODE_SERV_ERR,
+} = require('../constants/errors');
+
 const getCards = ((req, res) => {
   console.log('пришел запрос на getCards');
   Card.find({})
     .then((cards) => {
       res.send({ data: cards });
     })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
+    .catch(() => {
+      res.status(ERROR_CODE_SERV_ERR).send({ message: 'Что-то пошло не так' });
     });
 });
 
@@ -20,10 +26,10 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
+        res.status(ERROR_CODE_BAD_REG).send({ message: 'Переданы некорректные данные при создании карточки' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      res.status(ERROR_CODE_SERV_ERR).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -32,7 +38,7 @@ const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Карточка не найдена' });
         return;
       }
       // res.send({ data: card });
@@ -40,10 +46,10 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
+        res.status(ERROR_CODE_BAD_REG).send({ message: 'Переданы некорректные данные для постановки лайка' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      res.status(ERROR_CODE_SERV_ERR).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -56,7 +62,7 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Передан несуществующий _id карточки.' });// не существ. id
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Передан несуществующий _id карточки.' });// не существ. id
         return;
       }
       res.send({ data: card });
@@ -64,10 +70,10 @@ const likeCard = (req, res) => {
     .catch((err) => {
       console.log(err.name);
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
+        res.status(ERROR_CODE_BAD_REG).send({ message: 'Переданы некорректные данные для постановки лайка' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      res.status(ERROR_CODE_SERV_ERR).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -80,17 +86,17 @@ const disLikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Передан несуществующий _id карточки.' });
         return;
       }
       res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
+        res.status(ERROR_CODE_BAD_REG).send({ message: 'Переданы некорректные данные для снятия лайка' });
         return;
       }
-      res.status(500).send({ message: err.message });
+      res.status(ERROR_CODE_SERV_ERR).send({ message: 'Что-то пошло не так' });
     });
 };
 
