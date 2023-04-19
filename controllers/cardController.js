@@ -53,16 +53,16 @@ const likeCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
-        return;
+      } else {
+        res.send({ data: card });
       }
-      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
-        return;
+      } else {
+        res.status(500).send({ message: err.message });
       }
-      res.status(500).send({ message: err.message });
     });
 };
 

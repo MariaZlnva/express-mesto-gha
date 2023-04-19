@@ -22,6 +22,10 @@ const getUser = (req, res) => {
       res.send({ data: user });
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        return;
+      }
       res.status(500).send({ message: err.message });
     });
 };
