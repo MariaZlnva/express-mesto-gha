@@ -29,6 +29,9 @@ app.use((req, res, next) => {
 });
 app.use(routerUsers);
 app.use(routerCard);
+app.use('*', (req, res) => {
+  res.status(404).send({});
+});
 
 // принимаем сообщения с PORT
 app.listen(PORT, () => {
