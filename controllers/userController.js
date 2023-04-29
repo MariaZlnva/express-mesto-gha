@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const User = require('../models/userSchema');
 
 const {
@@ -36,8 +37,14 @@ const getUser = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  // хешируем пароль перед добавлением в БД
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
     .then((user) => {
       res.send({ data: user });
     })
@@ -97,10 +104,29 @@ const updateAvatar = (req, res) => {
     });
 };
 
+// const login = (req, res) => {
+//   const { email, password } = req.body;
+//   User.findOne({ email })
+//     .then((user) => {
+//       if (!user) {
+//         return Promise.reject(new Error('Неправильные почта или пароль'));
+//       }
+//       // создавать JWT сроком на неделю. В пейлоуд токена следует записывать только свойство _id
+
+//     })
+//     .catch((err) => {
+//       // возвращаем ошибку аутентификации
+//       res
+//         .status(401)
+//         .send({ message: err.message });
+//     });
+// };
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateUser,
   updateAvatar,
+  // login,
 };
