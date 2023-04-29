@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/userSchema');
+const { JWT_SECRET } = require('../config');
 
 const {
   ERROR_CODE_BAD_REG,
@@ -104,23 +106,24 @@ const updateAvatar = (req, res) => {
     });
 };
 
-// const login = (req, res) => {
-//   const { email, password } = req.body;
-//   User.findOne({ email })
-//     .then((user) => {
-//       if (!user) {
-//         return Promise.reject(new Error('Неправильные почта или пароль'));
-//       }
-//       // создавать JWT сроком на неделю. В пейлоуд токена следует записывать только свойство _id
-
-//     })
-//     .catch((err) => {
-//       // возвращаем ошибку аутентификации
-//       res
-//         .status(401)
-//         .send({ message: err.message });
-//     });
-// };
+const login = (req, res) => {
+  const { email, password } = req.body;
+  User.findUserByCredentials(email, password)
+    .then((user) => { // аутентификация успешна!
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+      // вернём токен
+      // res.send({ token });
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true, // ограничим доступ из JS
+      })
+        .send({ token });
+    })
+    .catch(() => {
+      // возвращаем ошибку аутентификации
+      res.status(401).send({ message: 'Неправильные почта или пароль' });
+    });
+};
 
 module.exports = {
   getUsers,
@@ -128,5 +131,5 @@ module.exports = {
   createUser,
   updateUser,
   updateAvatar,
-  // login,
+  login,
 };

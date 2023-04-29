@@ -4,12 +4,16 @@ const bodyParser = require('body-parser');
 // создаем приложение методом express
 const app = express();
 
-const { PORT = 3000 } = process.env;
+const { PORT, DB_ADDRESS } = require('./config');
 
 const routerUsers = require('./routes/users');
 const routerCard = require('./routes/cards');
+const {
+  createUser,
+  login,
+} = require('./controllers/userController');
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+mongoose.connect(DB_ADDRESS, {
   useNewUrlParser: true,
 });
 
@@ -27,6 +31,8 @@ app.use((req, res, next) => {
 
   next();
 });
+app.post('/signin', login);
+app.post('/signup', createUser);
 app.use(routerUsers);
 app.use(routerCard);
 app.use('*', (req, res) => {
