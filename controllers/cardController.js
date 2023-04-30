@@ -35,13 +35,21 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   console.log('пришел запрос на deleteCard');
-  Card.findByIdAndRemove(req.params.cardId)
+  // Получить id пользователя
+  const userId = req.user._id;
+  const { cardId } = req.params;
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
         res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Карточка не найдена' });
         return;
       }
-      // res.send({ data: card });
+      if (userId !== String(card.owner)) {
+        res.status(403).send({ message: 'Нет прав на удаление данной карточки' });
+      }
+      card.deleteOne();
+    })
+    .then(() => {
       res.send({ message: 'Пост удален' });
     })
     .catch((err) => {

@@ -33,19 +33,18 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    select: false,
     minlength: 8,
   },
 });
 // доб.собств.метод в св-во statics
 // проверяет почту и пароль на соотв.в БД
 userSchema.statics.findUserByCredentials = function (email, password) {
-// ищем пользователя по почте
-  return this.findOne({ email }) // this — это модель User
+  return this.findOne({ email }).select('+password') // this — это модель User
     .then((user) => {
-      if (!user) { // не нашёлся — отклоняем промис
+      if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
-      // нашёлся — сравниваем хеши
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) { // хеши не совпали — отклоняем промис

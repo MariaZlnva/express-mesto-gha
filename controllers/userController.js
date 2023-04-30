@@ -20,24 +20,47 @@ const getUsers = (req, res) => {
     });
 };
 
-const getUser = (req, res) => {
-  User.findById(req.params.userId)
+const getCurrentUser = (req, res) => {
+  console.log(req.user);
+  console.log('Пришел запрос на получение текущего юзера');
+  const { _id } = req.user;
+  User.findById(_id)
     .then((user) => {
       if (!user) {
-        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден' });// не существ. id
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден' });
         return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_BAD_REG).send({ message: 'Переданы некорректные данные для постановки лайка' });
+        res.status(ERROR_CODE_BAD_REG).send({ message: 'Переданы некорректные данные' });
         return;
       }
       res.status(ERROR_CODE_SERV_ERR).send({ message: 'Что-то пошло не так' });
     });
 };
 
+const getUser = (req, res) => {
+  console.log('Пришел запрос на получение юзера по id');
+  const { userId } = req.params;
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь не найден' });
+        return;
+      }
+      res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_BAD_REG).send({ message: 'Переданы некорректные данные' });
+        return;
+      }
+      res.status(ERROR_CODE_SERV_ERR).send({ message: 'Что-то пошло не так' });
+    });
+};
+// регистрация пользователя
 const createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
@@ -48,7 +71,8 @@ const createUser = (req, res) => {
       name, about, avatar, email, password: hash,
     }))
     .then((user) => {
-      res.send({ data: user });
+      const { _id } = user;
+      res.status(201).send({ data: { _id, email } });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -107,17 +131,19 @@ const updateAvatar = (req, res) => {
 };
 
 const login = (req, res) => {
+  console.log('запрос на авторизацию пришел');
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => { // аутентификация успешна!
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       // вернём токен
-      // res.send({ token });
-      res.cookie('jwt', token, {
-        maxAge: 3600000 * 24 * 7,
-        httpOnly: true, // ограничим доступ из JS
-      })
-        .send({ token });
+      res.send({ token });
+      // res.cookie('jwt', token, {
+      //   maxAge: 3600000 * 24 * 7,
+      //   httpOnly: true, // ограничим доступ из JS
+      //   sameSite: true,
+      // })
+      // .send({ _id: user._id });
     })
     .catch(() => {
       // возвращаем ошибку аутентификации
@@ -132,4 +158,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  getCurrentUser,
 };
