@@ -61,13 +61,26 @@ const createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
   // хешируем пароль перед добавлением в БД
-  bcrypt.hash(password, 10)
+  bcrypt
+    .hash(password, 10)
     .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
     }))
     .then((user) => {
       const { _id } = user;
-      res.status(201).send({ data: { _id, email } });
+      res.status(201).send({
+        data: {
+          _id,
+          email,
+          name,
+          about,
+          avatar,
+        },
+      });
     })
     .catch((err) => {
       console.log(err);
@@ -75,7 +88,11 @@ const createUser = (req, res, next) => {
         next(new BadRequestError('Переданы некорректные данные'));
       }
       if (err.code === 11000) {
-        next(new ConflictReqError('Пользователь с таким электронным адресом уже зарегистрирован'));
+        next(
+          new ConflictReqError(
+            'Пользователь с таким электронным адресом уже зарегистрирован',
+          ),
+        );
       }
       next(err);
     });
@@ -84,11 +101,15 @@ const createUser = (req, res, next) => {
 const updateUser = (req, res, next) => {
   console.log('Пришел запрос на update user profile');
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }, {
-    new: true, // обработчик then получит на вход обновлённую запись
-    runValidators: true, // данные будут валидированы перед изменением
-    upsert: false, // если пользователь не найден, он будет создан
-  })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    {
+      new: true, // обработчик then получит на вход обновлённую запись
+      runValidators: true, // данные будут валидированы перед изменением
+      upsert: false, // если пользователь не найден, он будет создан
+    },
+  )
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
@@ -106,10 +127,14 @@ const updateUser = (req, res, next) => {
 const updateAvatar = (req, res, next) => {
   console.log('Пришел запрос на update avatar');
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, {
-    new: true, // обработчик then получит на вход обновлённую запись
-    runValidators: true, // данные будут валидированы перед изменением
-  })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    {
+      new: true, // обработчик then получит на вход обновлённую запись
+      runValidators: true, // данные будут валидированы перед изменением
+    },
+  )
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
@@ -118,7 +143,11 @@ const updateAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении аватара'));
+        next(
+          new BadRequestError(
+            'Переданы некорректные данные при обновлении аватара',
+          ),
+        );
       }
       next(err);
     });
@@ -128,8 +157,11 @@ const login = (req, res, next) => {
   console.log('запрос на авторизацию пришел');
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
-    .then((user) => { // аутентификация успешна!
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    .then((user) => {
+      // аутентификация успешна!
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: '7d',
+      });
       // вернём токен
       res.send({ token });
       // res.cookie('jwt', token, {
