@@ -15,6 +15,7 @@ const {
 } = require('./controllers/userController');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFound');
+const { REGEX_URL } = require('./constants/regex');
 
 mongoose.connect(DB_ADDRESS, {
   useNewUrlParser: true,
@@ -38,7 +39,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string(),
+    avatar: Joi.string().regex(REGEX_URL),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),

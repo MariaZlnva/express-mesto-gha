@@ -13,7 +13,9 @@ const getUsers = (req, res, next) => {
     .then((users) => {
       res.send({ data: users });
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      next(err);
+    });
 };
 
 const getCurrentUser = (req, res, next) => {
@@ -54,6 +56,7 @@ const getUser = (req, res, next) => {
 };
 // регистрация пользователя
 const createUser = (req, res, next) => {
+  console.log('создаем юзера');
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -67,6 +70,7 @@ const createUser = (req, res, next) => {
       res.status(201).send({ data: { _id, email } });
     })
     .catch((err) => {
+      console.log(err);
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
       }

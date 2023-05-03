@@ -1,7 +1,7 @@
 class UnauthorizedError extends Error { // не может найти данные согласно запросу
   constructor(message) {
     super(message);
-    this.statusCode = 404;
+    this.statusCode = 401;
   }
 }
 

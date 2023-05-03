@@ -3,6 +3,7 @@
 // DELETE /cards/:cardId — удаляет карточку по идентификатору
 const routerCard = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const { REGEX_URL } = require('../constants/regex');
 
 const {
   getCards,
@@ -16,7 +17,7 @@ routerCard.get('/cards', getCards);
 routerCard.post('/cards', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required(),
+    link: Joi.string().required().regex(REGEX_URL),
   }),
 }), createCard);
 routerCard.delete('/cards/:cardId', celebrate({
