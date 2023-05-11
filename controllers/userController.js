@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/userSchema');
 const { JWT_SECRET } = require('../config');
 
@@ -158,18 +158,19 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
-      // аутентификация успешна!
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+      // email и пароль проверены
+      console.log(user);
+      // создадим токен
+      const token = jsonwebtoken.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: '7d',
       });
       // вернём токен
-      res.send({ token });
-      // res.cookie('jwt', token, {
-      //   maxAge: 3600000 * 24 * 7,
-      //   httpOnly: true, // ограничим доступ из JS
-      //   sameSite: true,
-      // })
-      // .send({ _id: user._id });
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true, // ограничим доступ из JS
+        sameSite: true,
+      })
+        .send({ _id: user._id });
     })
     .catch((err) => next(err));
 };

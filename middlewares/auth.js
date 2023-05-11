@@ -1,29 +1,22 @@
-const jwt = require('jsonwebtoken');
+const jsonwebtoken = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config');
 const UnauthorizedError = require('../errors/Unauthorized');
 
 module.exports = (req, res, next) => {
   console.log('пришли проходить аутентификацию');
-  // достаём авторизационный заголовок
-  // const { token } = req.cookies;
-  // console.log(token);
-  // // убеждаемся, что он есть или начинается с Bearer
-  // if (!token) {
-  //   return res.status(401).send({ message: 'Необходима авторизация' });
-  // }
-  const { authorization } = req.headers;
-  // убеждаемся, что он есть или начинается с Bearer
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Необходима авторизация');
+  const { jwt } = req.cookies;
+  if (!jwt) {
+    return next(new UnauthorizedError('Необходима авторизация'));
   }
-  const token = authorization.replace('Bearer ', '');
   let payload;
   try {
-    payload = jwt.verify(token, JWT_SECRET); // проверяем что токен верный
+    // проверяем что токен тот самый
+    payload = jsonwebtoken.verify(jwt, JWT_SECRET);
   } catch (err) {
-    next(new UnauthorizedError('Необходима авторизация'));
+    return next(new UnauthorizedError('Необходима авторизация'));
   }
-  req.user = payload; // записываем пейлоуд в объект запроса
-
+  req.user = {
+    _id: payload._id,
+  }; // записываем пейлоуд в объект запроса
   return next(); // пропускаем запрос дальше
 };
