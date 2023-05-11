@@ -6,44 +6,47 @@ const { REGEX_URL } = require('../constants/regex');
 const UnauthorizedError = require('../errors/Unauthorized');
 
 // Опишем схему
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    minlength: 2,
-    maxlength: 30,
-    default: 'Жак-Ив Кусто', // присвоим стандартные значения, если поле пустое
-  },
-  about: {
-    type: String,
-    minlength: 2,
-    maxlength: 30,
-    default: 'Исследователь',
-  },
-  avatar: {
-    type: String,
-    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    validate: {
-      validator: (url) => REGEX_URL.test(url),
-      message: 'Некорректная ссылка',
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      minlength: 2,
+      maxlength: 30,
+      default: 'Жак-Ив Кусто', // присвоим стандартные значения, если поле пустое
+    },
+    about: {
+      type: String,
+      minlength: 2,
+      maxlength: 30,
+      default: 'Исследователь',
+    },
+    avatar: {
+      type: String,
+      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+      validate: {
+        validator: (url) => REGEX_URL.test(url),
+        message: 'Некорректная ссылка',
+      },
+    },
+    email: {
+      type: String,
+      required: true,
+      // index: true,
+      unique: true,
+      validate: {
+        validator: (email) => validator.isEmail(email), // isEmail()проверяет явл ли строка email
+        message: 'Некорректный адрес почты', // если validator - false выведетсчя это сообщение
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+      select: false,
+      // minlength: 8,
     },
   },
-  email: {
-    type: String,
-    required: true,
-    // index: true,
-    unique: true,
-    validate: {
-      validator: (email) => validator.isEmail(email), // isEmail()проверяет явл ли строка email
-      message: 'Некорректный адрес почты', // если validator - false выведетсчя это сообщение
-    },
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false,
-    // minlength: 8,
-  },
-});
+  { toJSON: { useProjection: true }, toObject: { useProjection: true } },
+);
 // доб.собств.метод в св-во statics
 // проверяет почту и пароль на соотв.в БД
 userSchema.statics.findUserByCredentials = function (email, password) {

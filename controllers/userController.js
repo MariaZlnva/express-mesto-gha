@@ -71,16 +71,8 @@ const createUser = (req, res, next) => {
       password: hash,
     }))
     .then((user) => {
-      const { _id } = user;
-      res.status(201).send({
-        data: {
-          _id,
-          email,
-          name,
-          about,
-          avatar,
-        },
-      });
+      // const { _id } = user;
+      res.status(201).send({ data: user });
     })
     .catch((err) => {
       console.log(err);
@@ -159,7 +151,6 @@ const login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       // email и пароль проверены
-      console.log(user);
       // создадим токен
       const token = jsonwebtoken.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: '7d',
