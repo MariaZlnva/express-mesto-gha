@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -21,6 +22,8 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 mongoose.connect(DB_ADDRESS, {
   useNewUrlParser: true,
 });
+
+app.use(cors());
 
 // Парсинг входящих данных со стороны клиента
 // app.use(express.json());
