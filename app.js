@@ -16,6 +16,7 @@ const {
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFound');
 const { REGEX_URL } = require('./constants/regex');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 mongoose.connect(DB_ADDRESS, {
   useNewUrlParser: true,
@@ -27,6 +28,8 @@ app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 // Парсинг кук
 app.use(cookieParser());
+
+app.use(requestLogger); // подключаем логгер запросов до всех обработчиков роутов
 
 // Роутинг без авторизации
 app.post('/signin', celebrate({
@@ -55,6 +58,8 @@ app.use(routerCard);
 app.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
+
+app.use(errorLogger); // подключаем логгер ошибок после обработчиков роутов и до обработчиков ошибок
 
 // обработчик ошибок celebrate
 app.use(errors());
