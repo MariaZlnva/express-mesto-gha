@@ -23,7 +23,7 @@ mongoose.connect(DB_ADDRESS, {
   useNewUrlParser: true,
 });
 
-app.use(cors());
+app.use(cors({ origin: 'https://mesto.zlnva.nomoredomains.monster' }));
 
 // Парсинг входящих данных со стороны клиента
 // app.use(express.json());
