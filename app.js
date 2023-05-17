@@ -1,10 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-// создаем приложение методом express
-const app = express();
+
+const app = express(); // создаем приложение методом express
 const { celebrate, Joi, errors } = require('celebrate');
 const { PORT, DB_ADDRESS } = require('./config');
 
@@ -23,7 +24,14 @@ mongoose.connect(DB_ADDRESS, {
   useNewUrlParser: true,
 });
 
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  // http://localhost:3001/
+  origin: 'https://mesto.zlnva.nomoredomains.monster',
+  methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
+  allowedHeaders: ['Content-Type'],
+  credentials: true,
+  preflightContinue: false,
+}));
 
 // Парсинг входящих данных со стороны клиента
 // app.use(express.json());
@@ -33,6 +41,13 @@ app.use(bodyParser.urlencoded({ extended: true })); // для приёма ве�
 app.use(cookieParser());
 
 app.use(requestLogger); // подключаем логгер запросов до всех обработчиков роутов
+
+// Не забудьте удалить этот код после успешного прохождения ревью.
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 // Роутинг без авторизации
 app.post('/signin', celebrate({

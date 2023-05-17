@@ -11,7 +11,7 @@ const getUsers = (req, res, next) => {
   console.log('Пришел запрос на get users');
   User.find({})
     .then((users) => {
-      res.send({ data: users });
+      res.send(users);
     })
     .catch((err) => {
       next(err);
@@ -26,7 +26,7 @@ const getCurrentUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
       }
-      res.send({ data: user });
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -44,7 +44,7 @@ const getUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
       }
-      res.send({ data: user });
+      res.send(user);
     })
     .catch((err) => {
       console.log(err);
@@ -71,8 +71,7 @@ const createUser = (req, res, next) => {
       password: hash,
     }))
     .then((user) => {
-      // const { _id } = user;
-      res.status(201).send({ data: user });
+      res.status(201).send(user);
     })
     .catch((err) => {
       console.log(err);
@@ -106,7 +105,7 @@ const updateUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
       }
-      res.send({ data: user });
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -131,7 +130,7 @@ const updateAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
       }
-      res.send({ data: user });
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

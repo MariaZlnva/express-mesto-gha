@@ -6,8 +6,12 @@ const ForbiddenError = require('../errors/Forbidden');
 const getCards = ((req, res, next) => {
   console.log('пришел запрос на getCards');
   Card.find({})
+    .populate([
+      { path: 'likes', model: 'user' },
+      { path: 'owner', model: 'user' },
+    ])
     .then((cards) => {
-      res.send({ data: cards });
+      res.send(cards);
     })
     .catch((err) => next(err));
 });
@@ -16,8 +20,10 @@ const createCard = (req, res, next) => {
   console.log('пришел запрос на createCard');
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
+    // .populate('owner')
+    .then((card) => card.populate('owner'))
     .then((card) => {
-      res.send({ data: card });
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -32,11 +38,15 @@ const deleteCard = (req, res, next) => {
   const userId = req.user._id;
   const { cardId } = req.params;
   Card.findById(cardId)
+    .populate([
+      { path: 'owner', model: 'user' },
+    ])
     .then((card) => {
+      console.log(userId, String(card.owner._id));
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
       }
-      if (userId !== String(card.owner)) {
+      if (userId !== String(card.owner._id)) {
         throw new ForbiddenError('Нет прав на удаление данной карточки');
       }
       card.deleteOne();
@@ -59,11 +69,15 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
+    .populate([
+      { path: 'likes', model: 'user' },
+      { path: 'owner', model: 'user' },
+    ])
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Передан несуществующий _id карточки.');
       }
-      res.send({ data: card });
+      res.send(card);
     })
     .catch((err) => {
       console.log(err.name);
@@ -81,11 +95,15 @@ const disLikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
+    .populate([
+      { path: 'likes', model: 'user' },
+      { path: 'owner', model: 'user' },
+    ])
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Передан несуществующий _id карточки.');
       }
-      res.send({ data: card });
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
