@@ -25,8 +25,8 @@ mongoose.connect(DB_ADDRESS, {
 });
 
 app.use(cors({
-  // http://localhost:3001/
-  origin: 'https://mesto.zlnva.nomoredomains.monster',
+  // http://localhost:3001/ https://mesto.zlnva.nomoredomains.monster
+  origin: 'https://mesto.zlnva.nomoredomains.monster/',
   methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
   allowedHeaders: ['Content-Type'],
   credentials: true,
